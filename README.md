@@ -34,9 +34,12 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0fd9", GROUP="users", TAG+="uaccess"
 $ sudo udevadm control --reload-rules
 ```
 
-
+## サンプルの実行
 ```
 $ git clone https://gitlab.com/okadalaboratory/my-streamdeck.git
-$ cd my-streamdeck/src
-$ python3 my-streamdeck2.py
+$ cd Streamdeck/src
+```
+STREAM DECK NEO
+```
+$ python3 example_neo.py
 ```
