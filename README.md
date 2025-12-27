@@ -33,3 +33,10 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="0fd9", GROUP="users", TAG+="uaccess"
 ```
 $ sudo udevadm control --reload-rules
 ```
+
+
+```
+$ git clone https://gitlab.com/okadalaboratory/my-streamdeck.git
+$ cd my-streamdeck/src
+$ python3 my-streamdeck2.py
+```
