@@ -1,5 +1,7 @@
 # Elgato STREAMDECK をPythonから使う
 
+![](images/neo.jpg)
+
 [Python Elgato Stream Deck Library](https://github.com/abcminiuser/python-elgato-streamdeck)を使用
 
 [マニュアル](https://python-elgato-streamdeck.readthedocs.io/en/stable/)
