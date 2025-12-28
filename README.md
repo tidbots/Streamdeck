@@ -7,6 +7,12 @@
 [マニュアル](https://python-elgato-streamdeck.readthedocs.io/en/stable/)
 
 ## ToDo
+### 
+Streamdeck NEOで動作確認。
+
+それ以外の機種は要確認
+
+###
 デバイスを握ったまま異常終了したばあい、以下のコマンドを実行する。
 ```
 $ sudo udevadm control --reload-rules
