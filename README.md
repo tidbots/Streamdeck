@@ -57,7 +57,9 @@ python3 ros_hsr_neo.py
 ```
 ### 仕様
 #### ボタンがおされたら
-
+```
+rostopic echo /panel/cmd
+```
 
 
 受け取る側（例）
