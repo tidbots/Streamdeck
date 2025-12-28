@@ -195,6 +195,12 @@ panel_page_router_ros1.py の self.routes を編集してください。
 - routes は page -> key -> event(down/up/long) -> [commands...]
 - commands はそのまま /panel/cmd のJSON（page, screen, page_patch, key, reset_* など）
 
+
+- YAML の pages.<page>.screen_text があればそれを使う
+- 無ければ defaults.startup.screen_text（あれば）を使う
+- ルータが publish するコマンド列の中に {"type":"page","name":...} が含まれていたら、
+その直後に {"type":"screen","text":...} を自動で挿入する（ただし、直後に既に screen を送っているなら二重送信しない）
+
 ##### 使い方
 1) StreamDeck コントローラを起動
 ```
