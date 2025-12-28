@@ -187,6 +187,25 @@ panel_page_router_ros1.py の self.routes を編集してください。
 - /panel/event を受けた側（SMACH側）で処理する（おすすめ）
 
 
+#### YAMLを読み込んで pages を自動投入する ROS1 ノード
+##### YAML ファイルを用意
+例：panel_ui.yaml
+
+- pages.*.keys のキー番号は YAMLでは 数値でもOK（このノード側で str/int 両対応）
+- routes は page -> key -> event(down/up/long) -> [commands...]
+- commands はそのまま /panel/cmd のJSON（page, screen, page_patch, key, reset_* など）
+
+##### 使い方
+1) StreamDeck コントローラを起動
+```
+rosrun <your_pkg> neo_ros1_pages.py
+```
+
+2) YAML ルータ起動（このノード）
+```
+rosrun <your_pkg> panel_ui_yaml_ros1.py _yaml_path:=/path/to/panel_ui.yaml
+```
+
 #### ros topic pub -1 相当の ROS1 ノード
 panel_screen_listening_ros1.py
 
