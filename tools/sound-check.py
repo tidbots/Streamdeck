@@ -62,6 +62,62 @@ def get_key_style(deck, key, state):
         icon = "{}.png".format("Exit")
         font = "Roboto-Regular.ttf"
         label = "Bye" if state else "Exit"
+    elif key == 0:
+        name = "No.0"
+        icon = "{}.png".format("init-pos" if state else "init-pos")
+        font = "Roboto-Regular.ttf"
+        label = "Init POS" if state else "Init POS"
+    elif key == 1:
+        name = "No.1"
+        icon = "{}.png".format("hello" if state else "hello")
+        font = "Roboto-Regular.ttf"
+        label = "Hello!" if state else "Hello!"
+    elif key == 2:
+        name = "No.2"
+        icon = "{}.png".format("battery" if state else "battery")
+        font = "Roboto-Regular.ttf"
+        label = "Battery" if state else "Battery"     
+    elif key == 3:
+        if button_state[key]==0:
+            name = "No.3"
+            icon = "{}.png".format("microphone-off" if state else "microphone-on")
+            font = "Roboto-Regular.ttf"
+            label = "mic ON" if state else "mic ON"
+            button_state[key]=1 
+        else:
+            name = "No.3"
+            icon = "{}.png".format("microphone-on" if state else "microphone-off")
+            font = "Roboto-Regular.ttf"
+            label = "mic OFF" if state else "mic OFF"
+            button_state[key]=0
+    elif key == 4:
+        name = "No.4"
+        icon = "{}.png".format("mic-" if state else "mic-")
+        font = "Roboto-Regular.ttf"
+        label = "mic-" if state else "mic-"
+    elif key == 5:
+        if button_state[key]==0:
+            name = "No.5"
+            icon = "{}.png".format("microphone-off" if state else "microphone-on")
+            font = "Roboto-Regular.ttf"
+            label = "mic ON" if state else "mic ON"
+            button_state[key]=1 
+        else:
+            name = "No.5"
+            icon = "{}.png".format("microphone-on" if state else "microphone-off")
+            font = "Roboto-Regular.ttf"
+            label = "mic OFF" if state else "mic OFF"
+            button_state[key]=0
+    elif key == 6:
+        name = "No.6"
+        icon = "{}.png".format("mic+" if state else "mic+")
+        font = "Roboto-Regular.ttf"
+        label = "mic+" if state else "mic+"      
+    elif key == 7:
+        name = "No.7"
+        icon = "{}.png".format("pcvol" if state else "pcvol")
+        font = "Roboto-Regular.ttf"
+        label = "Battery" if state else "Battery"         
     else:
         name = "emoji"
         icon = "{}.png".format("Pressed" if state else "Released")
@@ -109,6 +165,34 @@ def key_change_callback(deck, key, state):
     # Check if the key is changing to the pressed state.
     if state:
         key_style = get_key_style(deck, key, state)
+        if key_style["name"] == "No.0":
+            print("set Intial Position : 0,0,0")
+            proc=subprocess.run(['rosrun','okd_hsrsample','initpose.py']) 
+        if key_style["name"] == "No.1":
+            print("HSR test : say hello")
+            proc=subprocess.run(['rostopic','pub','-1','/talk_request','tmc_msgs/Voice','0','0','0','"みなさんこんにちは、私の名前はHSRです"']) 
+
+        if key_style["name"] == "No.2":
+            print("HSR : check battery level")
+            proc=subprocess.run(['rosrun','okd_hsrsample','checkbattery.py']) 
+        if key_style["name"] == "No.3":
+            print("HSR : check mic level")
+            if button_state[key]!=0:
+                procA=subprocess.Popen(['python3','mic-monitor.py']) 
+            #else:
+            #    procA.kill()
+
+        if key_style["name"] == "No.4":
+            subprocess.run(['amixer', '-D', 'hw:0', 'sset', 'Capture','3%-'])
+        if key_style["name"] == "No.5":
+            if button_state[key]==0:
+                subprocess.run(['amixer', '-D', 'hw:0', 'sset', 'Capture','100'])
+            else:
+                subprocess.run(['amixer', '-D', 'hw:0', 'sset', 'Capture','0'])   
+        if key_style["name"] == "No.6":
+            subprocess.run(['amixer', '-D', 'hw:0', 'sset', 'Capture','3%+'])
+
+
 
         # When an exit button is pressed, close the application.
         if key_style["name"] == "exit":
