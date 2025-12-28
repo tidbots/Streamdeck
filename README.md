@@ -27,6 +27,7 @@ sudo apt install -y libjpeg-dev zlib1g-dev libopenjp2-7 libtiff5
 # Install python library dependencies
 pip3 install wheel
 pip3 install pillow
+pip3 install pyyaml
 ```
 ### udev（userspace device management）の設定
 ```
