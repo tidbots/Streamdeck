@@ -13,6 +13,7 @@
 import os
 import threading
 import random
+import subprocess
 
 from PIL import Image, ImageDraw, ImageFont
 from StreamDeck.DeviceManager import DeviceManager
