@@ -1,0 +1,80 @@
+ui_schema: panel_ui_v1
+
+defaults:
+  font: Roboto-Regular.ttf
+  icons:
+    released: Released.png
+    pressed: Pressed.png
+  startup:
+    page: home
+    screen_text: READY
+  long_press_sec: 1.0
+
+pages:
+  home:
+    screen_text: HOME
+    keys:
+      0: { icon: gpsr.png,  label: GPSR }
+      1: { icon: nav.png,   label: NAV  }
+      2: { icon: debug.png, label: DBG  }
+
+  gpsr:
+    screen_text: GPSR
+    keys:
+      0: { icon: listen.png, label: LISTEN }
+      1: { icon: stop.png,   label: STOP   }
+      2: { icon: back.png,   label: BACK   }
+
+  nav:
+    screen_text: NAV
+    keys:
+      0: { icon: nav.png,  label: START }
+      1: { icon: stop.png, label: STOP  }
+      2: { icon: back.png, label: BACK  }
+
+  debug:
+    screen_text: DEBUG
+    keys:
+      0: { icon: debug.png, label: INFO  }
+      1: { icon: reset.png, label: RESET }
+      2: { icon: back.png,  label: BACK  }
+
+routes:
+  home:
+    0:
+      down:
+        - { type: page, name: gpsr }
+        - { type: screen, text: GPSR }
+    1:
+      down:
+        - { type: page, name: nav }
+        - { type: screen, text: NAV }
+    2:
+      down:
+        - { type: page, name: debug }
+        - { type: screen, text: DEBUG }
+
+  gpsr:
+    0:
+      down:
+        - { type: screen, text: LISTENING... }
+    1:
+      down:
+        - { type: screen, text: STOP }
+    2:
+      down:
+        - { type: page, name: home }
+        - { type: screen, text: HOME }
+
+  nav:
+    2:
+      down:
+        - { type: page, name: home }
+        - { type: screen, text: HOME }
+
+  debug:
+    2:
+      down:
+        - { type: page, name: home }
+        - { type: screen, text: HOME }
+
