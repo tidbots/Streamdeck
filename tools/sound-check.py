@@ -21,6 +21,10 @@ from StreamDeck.Transport.Transport import TransportError
 
 # Folder location of image assets used by this example.
 ASSETS_PATH = os.path.join(os.path.dirname(__file__), "Assets")
+global procA
+procA=0
+# 0 or 1
+button_state=[0,0,0,0,0,0,0,0 ]
 
 
 # Generates a custom tile with run-time generated text and custom image via the
