@@ -1,4 +1,4 @@
-# Elgato STREAMDECK をPythonから使う
+# Elgato STREAMDECK をPython+ROSから使う
 
 ![Elgato Streamdeck NEDO](/images/neo.jpg)
 
