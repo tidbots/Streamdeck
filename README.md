@@ -42,10 +42,10 @@ $ sudo udevadm control --reload-rules
 
 ## サンプルの実行
 ```
-$ git clone https://gitlab.com/okadalaboratory/my-streamdeck.git
+$ git clone https://github.com/tidbots/Streamdeck.git
 $ cd Streamdeck/src
 ```
-STREAM DECK NEO
+STREAM DECK NEOの場合
 ```
 $ python3 example_neo.py
 ```
