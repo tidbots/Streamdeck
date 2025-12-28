@@ -49,18 +49,19 @@ STREAM DECK NEOの場合
 ```
 $ python3 example_neo.py
 ```
-
-## ROS1 Noeticで使う
 ```
 cd scripts
 python3 ros_hsr_neo.py
 ```
+
+## ROS1 Noeticで使う
+
+## ROS2 Humbleで使う
 ### 仕様
 #### ボタンがおされたら
 ```
-rostopic echo /panel/cmd
+ros2 topic echo /panel/event
 ```
-
 
 受け取る側（例）
 
@@ -74,7 +75,7 @@ def cb(msg):
 ```
 
 #### パネルの表示を変更
-- Publish topic: /panel/event
+- Publish topic: /panel/cmd
 - msg型: std_msgs/String（中身はJSON）
 - 送る内容例：
 ```
@@ -85,7 +86,7 @@ def cb(msg):
 
 例1：キー0を「GO」＋アイコンに変更
 ```
-rostopic pub -1 /panel/cmd std_msgs/msg/String \
+ros2 topic pub -1 /panel/cmd std_msgs/msg/String \
 "{data: '{\"type\":\"key\",\"index\":0,\"icon\":\"init-pos.png\",\"label\":\"GO\"}'}"
 ```
 
@@ -116,7 +117,122 @@ ros2 topic pub -1 /panel/cmd std_msgs/msg/String \
 "{data: '{\"type\":\"reset_all\"}'}"
 ```
 
-## ROS2
+送る側のプログラム例：
+```
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+
+class PanelScreenOnce(Node):
+    def __init__(self):
+        super().__init__("panel_screen_once")
+
+        self.pub = self.create_publisher(String, "/panel/cmd", 10)
+
+        # 少し待ってから publish（publisher 初期化待ち）
+        self.timer = self.create_timer(0.5, self.publish_once)
+        self.sent = False
+
+    def publish_once(self):
+        if self.sent:
+            return
+
+        cmd = {
+            "type": "screen",
+            "text": "LISTENING..."
+        }
+
+        msg = String()
+        msg.data = json.dumps(cmd)
+
+        self.pub.publish(msg)
+        self.get_logger().info("Sent /panel/cmd: screen=LISTENING...")
+
+        self.sent = True
+        rclpy.shutdown()
+
+
+def main():
+    rclpy.init()
+    node = PanelScreenOnce()
+    rclpy.spin(node)
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+
+
+#### ページ遷移ノードの例
+/panel/event を受けて「homeの0番を押したらgpsrページへ」みたいな ページ遷移ノードpanel_page_router.pyの例
+
+0. 前提
+
+先にあなたの パネルコントローラ（hsr_neo_ros2_pages.py：完成版）を起動しておきます。
+
+Assets/ に使うアイコン（gpsr.png, nav.png, debug.png, back.png など）を置きます。
+
+1. ターミナルA：パネルコントローラ起動
+```
+ros2 run <your_pkg> hsr_neo_ros2_pages.py
+```
+（または python3 hsr_neo_ros2_pages.py）
+
+2. 別のターミナルから：ページ定義を流す（例）
+- homeページ
+```
+ros2 topic pub -1 /panel/cmd std_msgs/msg/String \
+"{data: '{\"type\":\"page_define\",\"name\":\"home\",\"keys\":{\"0\":{\"icon\":\"gpsr.png\",\"label\":\"GPSR\"},\"1\":{\"icon\":\"nav.png\",\"label\":\"NAV\"},\"2\":{\"icon\":\"debug.png\",\"label\":\"DBG\"}}}'}"
+```
+- gpsrページ
+```
+ros2 topic pub -1 /panel/cmd std_msgs/msg/String \
+"{data: '{\"type\":\"page_define\",\"name\":\"gpsr\",\"keys\":{\"0\":{\"icon\":\"listen.png\",\"label\":\"LISTEN\"},\"1\":{\"icon\":\"stop.png\",\"label\":\"STOP\"},\"2\":{\"icon\":\"back.png\",\"label\":\"BACK\"}}}'}"
+```
+- navページ
+```
+ros2 topic pub -1 /panel/cmd std_msgs/msg/String \
+"{data: '{\"type\":\"page_define\",\"name\":\"nav\",\"keys\":{\"0\":{\"icon\":\"nav.png\",\"label\":\"START\"},\"1\":{\"icon\":\"stop.png\",\"label\":\"STOP\"},\"2\":{\"icon\":\"back.png\",\"label\":\"BACK\"}}}'}"
+```
+- debugページ
+```
+ros2 topic pub -1 /panel/cmd std_msgs/msg/String \
+"{data: '{\"type\":\"page_define\",\"name\":\"debug\",\"keys\":{\"0\":{\"icon\":\"debug.png\",\"label\":\"INFO\"},\"1\":{\"icon\":\"reset.png\",\"label\":\"RESET\"},\"2\":{\"icon\":\"back.png\",\"label\":\"BACK\"}}}'}"
+```
+- homeに切替
+```
+ros2 topic pub -1 /panel/cmd std_msgs/msg/String \
+"{data: '{\"type\":\"page\",\"name\":\"home\"}'}"
+```
+
+3. ターミナルC：この router ノード起動
+```
+ros2 run <your_pkg> panel_page_router.py
+```
+（または python3 panel_page_router.py）
+
+4. 動作確認
+- StreamDeck の homeページ で
+   - key0 → gpsrページへ
+   - key1 → navページへ
+   - key2 → debugページへ
+- 各ページの key2（BACK） → homeへ戻る
+
+##### カスタマイズ方法（最重要）
+panel_page_router.py の self.routes を編集してください。
+
+例：gpsrページの key0 を押したら「LISTENING」表示に加えて、別ノードへ合図したい場合は
+- /gpsr/start に publish する等を追加（このノード側にpubを追加）
+または
+- /panel/event を受けた側（SMACH側）で処理する（おすすめ）
+
 
 ## Docker
 ### ROS1 Noetic
