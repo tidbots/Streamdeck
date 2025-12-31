@@ -7,6 +7,111 @@
 [マニュアル](https://python-elgato-streamdeck.readthedocs.io/en/stable/)
 
 ## ToDo
+### 31 Dec.2025
+```
+$ arecord -t wav -f dat -d 3 out.wav
+```
+「-t wav」
+ファイル形式に「WAV」を指定
+- 「-f dat」
+- 「-f S16_LE -c2 -r48000」の短縮形
+- 16 bit little endian, 48000, stereo
+```
+$ sox out.wav -n stat
+$ sox out.wav -n stat
+Samples read:            288000
+Length (seconds):      3.000000
+Scaled by:         2147483647.0
+Maximum amplitude:     0.999969
+Minimum amplitude:    -1.000000
+Midline amplitude:    -0.000015
+Mean    norm:          0.142147
+Mean    amplitude:     0.000054
+RMS     amplitude:     0.231756
+Maximum delta:         0.614075
+Minimum delta:         0.000000
+Mean    delta:         0.035311
+RMS     delta:         0.057780
+Rough   frequency:         1904
+Volume adjustment:        1.000
+```
+```
+音は入っています。でも数値を見る限り、これは “入りすぎ（ほぼ確実にクリップ／飽和）” です。
+
+いまの状態（sox の結果の読み方）
+
+Maximum amplitude: 0.999969 / Minimum amplitude: -1.000000
+→ フルスケールに張り付き（= 0dBFS付近）
+→ かなりの確率で歪みます
+
+RMS amplitude: 0.231756
+→ 平均的にもかなり大きめ（話し声なら通常もっと小さい）
+→ Whisper は動くけど、歪むと誤認識が増えます
+
+Rough frequency: 1904
+→ 人の声っぽい値じゃないので、ハム/ノイズ/クリップ由来の高周波成分が混ざってそう
+
+目標値（GPSR/Whisper向けの目安）
+
+Max amplitude: 0.3〜0.7 くらい（ピークが時々 0.8 ならOK）
+
+RMS amplitude: 0.03〜0.10 くらい（話者距離にもよる）
+
+すぐ効く調整（この順で）
+1) Boost を下げる（最重要）
+
+あなたは以前 Boost が 30dB(=3/3) でした。これが犯人になりがちです。
+
+amixer -c 0 sset 'Headset Mic Boost' 0
+amixer -c 0 sset 'Headphone Mic Boost' 0
+
+
+※ もし外部マイク（ヘッドセット）を使うなら 1 まで、基本は 0 で。
+
+2) PGA を下げる（次に効く）
+
+いま PGA2.0 / PGA4.0 が 62% でしたね。まず 40% くらいまで落とします。
+
+amixer -c 0 sset 'PGA2.0 2 Master' 40%
+amixer -c 0 sset 'PGA4.0 4 Master' 40%
+
+3) Dmic0 は基本そのまま（ただし最終手段で下げる）
+
+通常は Dmic0=100% 固定でOK。
+それでも大きすぎるなら Dmic0 を 80% まで落とすのはアリです。
+
+amixer -c 0 sset 'Dmic0' 80%
+
+再テスト（同じ手順で比較）
+arecord -D hw:0 -c 2 -f S16_LE -r 48000 -d 3 out.wav
+sox out.wav -n stat
+
+期待する変化
+
+Maximum amplitude が 1.0 に張り付かなくなる
+
+RMS amplitude が 0.05〜0.10 付近へ下がる
+
+Rough frequency が 100〜300Hz台（声の基音帯）寄りになる（完全一致しなくてOK）
+
+補足：もし「音量が下がらない」場合
+
+そのときは、入力が ヘッドセット経路に固定されていて Boost が別名、または Input Source が違う可能性があります。
+その場合は次を貼ってください：
+
+amixer -c 0 get 'Input Source'
+amixer -c 0 get 'Headset Mic Boost'
+amixer -c 0 get 'Headphone Mic Boost'
+amixer -c 0 get 'PGA2.0 2 Master'
+amixer -c 0 get 'PGA4.0 4 Master'
+amixer -c 0 get 'Dmic0'
+
+
+まずは上の調整（Boost 0 + PGA 40%）で、もう一度 sox stat の数字を見せてください。そこから「ちょうど良い」ところまで一気に詰めます。
+```
+
+
+
 ### 
 Streamdeck NEOで動作確認。
 
